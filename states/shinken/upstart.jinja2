@@ -6,6 +6,13 @@ stop on runlevel [!2345]
 
 respawn
 
+{% if shinken_component == 'arbiter' %}
+{% set check_command = "/usr/local/shinken/bin/shinken-arbiter --verify-config -c /etc/shinken/arbiter.conf" %}
+pre-start script
+   {{ check_command }} || { echo "Shinken Arbiter on {{ pillar['ip_addresses'][grains['id']] }} contains error(s)! See errors using:\n{{ check_command }}" | mail -s 'Shinken Arbiter Config Error' {% for user in pillar['shinken']['users'] %}{{ pillar['shinken']['users'][user]['email'] }}{% if not loop.last %} {% endif %}{% endfor %}; stop; exit 0; }
+end script
+{% endif %}
+
 script
   exec /usr/local/shinken/bin/shinken-{{ shinken_component }} -c /etc/shinken/{{ shinken_component }}.conf
   emit shinken-arbiter-{{ shinken_component }}

@@ -3,6 +3,7 @@ include:
   - git
   - nginx
   - diamond
+  - pip
 
 /etc/init/uwsgi.conf:
   file:
@@ -16,6 +17,8 @@ include:
 uwsgitop:
   pip:
     - installed
+    - require:
+      - pkg: python-pip
 
 uwsgi_build:
   pkg:

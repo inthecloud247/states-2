@@ -2,6 +2,7 @@ include:
   - virtualenv
   - nrpe
   - diamond
+  - pip
 
 {# gsyslog depends on klogd to get kernel logs #}
 sysklogd:
@@ -68,6 +69,7 @@ gsyslog:
       - virtualenv: gsyslog
       - pkg: python-virtualenv
       - pkg: gsyslog
+      - file: pip-cache
     - watch:
       - file: gsyslog_requirements
   file:

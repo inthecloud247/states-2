@@ -24,7 +24,8 @@ salt-minion:
     - mode: 440
     - source: salt://salt/config.jinja2
   pkg:
-    - latest
+    - installed
+    {# ^- use to be latest, but 0.12.x is just broken #}
   service:
     - running
     - enable: True

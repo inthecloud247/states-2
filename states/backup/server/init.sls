@@ -2,6 +2,7 @@ include:
   - ssh.server
   - nrpe
   - sudo
+  - pip
 
 backup-server:
   ssh_auth:
@@ -47,6 +48,8 @@ backup-archiver-dependency:
     - requirements: {{ opts['cachedir'] }}/backup-requirements.txt
     - watch:
       - file: backup-archiver-dependency
+    - require:
+      - pkg: python-pip
 
 /etc/sudoers.d/nrpe_backups:
   file:

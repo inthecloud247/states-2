@@ -8,6 +8,7 @@ include:
   - nginx
   - memcache
   - diamond
+  - pip
 
 {#graphite_logrotate:#}
 {#  file:#}
@@ -102,6 +103,7 @@ graphite-web:
       - file: graphite-web
     - require:
       - pkg: graphite-web
+      - file: pip-cache
   pkg:
     - installed
     - name: libcairo2-dev
@@ -116,6 +118,8 @@ graphite-web:
     - name: git+git://github.com/jeffkistler/django-decorator-include.git#egg=django-decorator-include
 {#    - editable: True#}
     - bin_env: /usr/local/graphite/bin/pip
+    - require:
+      - file: pip-cache
 
 graphite-urls-patch:
   file:
@@ -164,6 +168,17 @@ graphite_settings:
       - file: graphite_settings
     - watch:
       - module: graphite-web
+
+{% if 'backup_server' in pillar %}
+/etc/cron.daily/backup-graphite:
+  file:
+    - managed
+    - user: root
+    - group: root
+    - mode: 500
+    - template: jinja
+    - source: salt://graphite/backup.jinja2
+{% endif %}
 
 /etc/uwsgi/graphite.ini:
   file:

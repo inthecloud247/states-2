@@ -3,9 +3,9 @@ include:
   - nrpe
 
 {% for filename in ('default', 'example_ssl') %}
-/etc/nginx/conf.d/{{ filename }}:
+/etc/nginx/conf.d/{{ filename }}.conf:
   file.absent
-{% endif %}
+{% endfor %}
 
 /etc/nagios/nrpe.d/nginx.cfg:
   file:
@@ -28,17 +28,29 @@ include:
       - pkg: nginx
 
 {# disable old startup script for nginx, this is only need to run once #}
-{% if not salt['file'].file_exists("/etc/init/nginx.conf") %}
+{% if not salt['file.file_exists']("/etc/init/nginx.conf") %}
 nginx-old-init:
   service:
     - dead
+    - name: nginx
     - enable: False
+  file:
+    - rename
+    - name: /usr/share/nginx/init.d
+    - source: /etc/init.d/nginx
+  cmd:
+    - wait
+    - name: dpkg-divert --divert /usr/share/nginx/init.d --add /etc/init.d/nginx
+    - watch:
+      - file: nginx-old-init
+    - require:
+      - service: nginx-old-init
 {% endif %}
 
 {% set logger_types = ('access', 'error') %}
 
 {% for log_type in logger_types %}
-logger-{{ log_type }}:
+nginx-logger-{{ log_type }}:
   file:
     - managed
     - name: /etc/init/nginx-logger-{{ log_type }}.conf
@@ -53,9 +65,13 @@ logger-{{ log_type }}:
     - running
     - enable: True
     - require:
-      - file: logger-{{ log_type }}
+      - file: nginx-logger-{{ log_type }}
       - pkg: nginx
 {% endfor %}
+
+/etc/logrotate.d/nginx:
+  file:
+    - absent
 
 nginx:
   apt_repository:
@@ -80,8 +96,8 @@ nginx:
     - source: salt://nginx/upstart.jinja2
     - require:
       - pkg: nginx
-{% if not salt['file'].file_exists("/etc/init/nginx.conf") %}
-      - service: nginx-old-init
+{% if not salt['file.file_exists']("/etc/init/nginx.conf") %}
+      - cmd: nginx-old-init
 {% endif %}
   service:
     - running
@@ -92,9 +108,9 @@ nginx:
       - file: /etc/nginx/conf.d/default.conf
       - file: /etc/nginx/conf.d/example_ssl.conf
       - pkg: nginx
-   - require:
+    - require:
 {% for log_type in logger_types %}
-     - service: logger-{{ log_type }}
+      - service: nginx-logger-{{ log_type }}
 {% endfor %}
 
 nginx_diamond_memory:
