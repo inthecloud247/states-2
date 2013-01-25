@@ -42,6 +42,7 @@ diamond_collector-psycopg2:
     - require:
       - pkg: postgresql-dev
       - pkg: python-virtualenv
+      - file: pip-cache
     - watch:
       - file: diamond_collector-psycopg2
 

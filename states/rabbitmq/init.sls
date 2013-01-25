@@ -166,6 +166,7 @@ diamond-pyrabbit:
     - requirements: /usr/local/diamond/salt-pyrabbit-requirements.txt
     - require:
       - pkg: python-virtualenv
+      - file: pip-cache
     - watch:
       - file: diamond-pyrabbit
 

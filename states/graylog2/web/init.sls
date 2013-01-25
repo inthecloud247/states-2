@@ -30,15 +30,9 @@ graylog2-web_logdir:
     - mode: 770
     - makedirs: True
 
-graylog2-web_logrotate:
+/etc/logrotate.d/graylog2-web:
   file:
-    - managed
-    - name: /etc/logrotate.d/graylog2-web
-    - template: jinja
-    - user: root
-    - group: root
-    - mode: 440
-    - source: salt://graylog2/web/logrotate.jinja2
+    - absent
 
 graylog2-web-upstart:
   file:

@@ -48,6 +48,7 @@ http {
     server {
         server_name {% for ip in salt['network.interfaces']()['eth0']['inet'] %}{{ ip['address'] }}:80{% if not loop.last %} {% endif %}{% endfor %};
         rewrite ^/.* {{ pillar['nginx']['redirect_numeric_ip'] }};
+        access_log off;
     }
 {% endif %}
 {% endif %}

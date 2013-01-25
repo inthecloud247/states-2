@@ -4,6 +4,7 @@ include:
   - virtualenv
   - nrpe
   - diamond
+  - pip
 {% if grains['id'] in pillar['shinken']['architecture']['broker'] %}
   - nginx
 {% endif %}
@@ -66,6 +67,7 @@ shinken:
     - bin_env: /usr/local/shinken
     - require:
       - virtualenv: shinken
+      - file: pip-cache
   user:
     - present
     - shell: /bin/false
